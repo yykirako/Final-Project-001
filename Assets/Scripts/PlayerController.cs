@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private GameObject gameManager;
+   /* [SerializeField] private GameObject gameManager;*/
 
     [SerializeField] private GameObject directionIndicator;
     private float projectionAngleX = 0f;
@@ -15,17 +15,22 @@ public class PlayerController : MonoBehaviour
     private GameObject[] fruitPrefabs;
     private GameObject fruitSpawned;
     private Rigidbody fruitRb;
+    private GameObject container;
+
 
     [SerializeField] private GameObject playerHand;
     [SerializeField] private float pullForce = 10f;
 
-    [SerializeField] Vector3 spawnOffset = new Vector3 (0, 0.5f, 1f); //fruit spawning positon to hand
-
+    [SerializeField] private Vector3 spawnOffset = new Vector3 (0, 0.5f, 1f); //fruit spawning positon to hand
+    private Vector3 spawnPosition;
     private bool isAFruitInHand = false;
 
     private void Awake()
     {
-        fruitPrefabs = gameManager.GetComponent<GameManager>().fruitPrefabs;
+        fruitPrefabs = GameManager.Instance.FruitPrefabs;
+        container = GameManager.Instance.Container;
+        spawnPosition = playerHand.transform.position + spawnOffset;
+
     }
     // Update is called once per frame
     void Update()
@@ -34,14 +39,13 @@ public class PlayerController : MonoBehaviour
     }
     private void SpawnRandomFruit()
     {
-        Vector3 spawnPosition = playerHand.transform.position + spawnOffset;
-        int fruitIndex = Random.Range(0, fruitPrefabs.Length-4);
 
         //spawn a random fruit when mouse down
         if (Input.GetMouseButtonDown(0) && !isAFruitInHand)
         {
+            int fruitIndex = Random.Range(0, fruitPrefabs.Length - 4);
 
-            fruitSpawned = Instantiate(fruitPrefabs[fruitIndex], spawnPosition, fruitPrefabs[fruitIndex].transform.rotation);
+            fruitSpawned = Instantiate(fruitPrefabs[fruitIndex], spawnPosition, fruitPrefabs[fruitIndex].transform.rotation, container.transform);
             fruitSpawned.layer = 3;
             foreach (Transform child in fruitSpawned.gameObject.transform)
             {
@@ -62,7 +66,7 @@ public class PlayerController : MonoBehaviour
                 pullForce += 5f * Time.deltaTime;
 
             }
-            Debug.Log("pullForce: " + pullForce);
+            /*Debug.Log("pullForce: " + pullForce);*/
 
             //create a trembling effect to indicate the force
             Vector3 pullingAnimation = new Vector3(Random.Range(-0.01f, 0.01f), Random.Range(-0.01f, 0.01f), (Random.Range(-0.01f, 0.0f) - pullForce * 0.005f));
@@ -98,7 +102,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             fruitRb.AddForce(pullForce * (fruitSpawned.transform.position - playerHand.transform.position), ForceMode.Impulse);
-            Debug.Log("left mouse button up");
+            /*Debug.Log("left mouse button up");*/
             isAFruitInHand = false;
 
             //reset force

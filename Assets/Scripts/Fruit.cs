@@ -6,33 +6,20 @@ using UnityEngine;
 
 public class Fruit : MonoBehaviour
 {
-    [SerializeField] private GameObject gameManager;
-
     private GameObject[] fruitPrefabs;
 
-    /*public bool isFruitCollided = false;
-    public int fruitCollided = -1;*/
-
-    private float xPosition;
     private float yPosition;
-    private float zPosition;
-    private float width;
 
     private int thisID;
-    private GameObject fruitMerged;
     private int fruitIndex;
 
+    /*private bool _fruitCollided = false;*/
 
     private void Awake()
     {
 
-        /*xPosition = transform.position.x;
-        zPosition = transform.position.z;
-        width = transform.localScale.x;
-
-        IsInContainer();*/
+        fruitPrefabs = GameManager.Instance.FruitPrefabs;
         thisID = GetInstanceID();
-        fruitPrefabs = gameManager.GetComponent<GameManager>().fruitPrefabs;
         fruitIndex = FindFruitIndex(gameObject);
     }
 
@@ -44,35 +31,35 @@ public class Fruit : MonoBehaviour
             Destroy(gameObject);
         }
     }
-    private void MergeFruits(int fruitCollided, Vector3 mergePosition)
-    {
-        if (fruitCollided > -1 && fruitCollided < fruitPrefabs.Length-1)
-        {
-            fruitMerged = Instantiate(fruitPrefabs[fruitCollided + 1], mergePosition, fruitPrefabs[fruitCollided + 1].transform.rotation);
-
-            //make sure the new fruit object and children have the correct layer setting
-            fruitMerged.layer = 6;
-            foreach (Transform child in fruitMerged.gameObject.transform)
-            {
-                child.gameObject.layer = 6;
-            }
-        }
-    }
     private void OnCollisionEnter(Collision collision)
     {
-        if (gameObject.CompareTag(collision.gameObject.tag))
+        /*Debug.Log("fruit collided");*/
+
+        if (this.CompareTag(collision.gameObject.tag) && !GameManager.Instance.IsFruitMerging)
         {
-            Vector3 mergePosition = (collision.transform.position + transform.position) / 2;
+            /*Debug.Log("fruit tag compared");*/
+
             if (thisID < collision.gameObject.GetInstanceID()) // this makes sure the merging happens only ONCE while TWO fruits collide
             {
+                /*Debug.Log("fruit ID compared");*/
+
+                Vector3 mergePosition = (collision.transform.position + transform.position) / 2;
+
                 if (fruitIndex >= 0 && fruitIndex < fruitPrefabs.Length - 1)
                 {
-                    MergeFruits(fruitIndex, mergePosition);
+                    /*Debug.Log("fruitColliding");*/
+                    GameManager.Instance.MergeFruit(fruitIndex, mergePosition);
+
                     Destroy(gameObject);
                     Destroy(collision.gameObject);
                 }       
             }
         }
+        
+    }
+    private void OnDestroy()
+    {
+        GameManager.Instance.IsFruitMerging = false;
     }
 
     //chech the index of this fruit object in the list, to be used conveniently in other functions

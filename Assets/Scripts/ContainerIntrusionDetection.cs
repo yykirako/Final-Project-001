@@ -7,13 +7,12 @@ using UnityEngine;
 
 public class ContainerIntrusionDetection : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    /*private void OnTriggerEnter(Collider other)
     {
-        /*layer 3 -> OutsideContainer*/
-        /*layer 6 -> InsideContainer*/
+        *//*layer 3 -> OutsideContainer*/
+        /*layer 6 -> InsideContainer*//*
 
-        Debug.Log(gameObject.name+ ": onTriggerEnter ");
-        Debug.Log(other.gameObject.layer);
+        
         if(other.gameObject.layer == 3 && !other.gameObject.CompareTag("Container") )
         {
             other.gameObject.layer = 6;
@@ -22,7 +21,18 @@ public class ContainerIntrusionDetection : MonoBehaviour
                 child.gameObject.layer = 6;
             }
         }
-        Debug.Log(other.gameObject.layer);
+        *//*Debug.Log(other.gameObject.layer);*//*
+    }*/
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.layer == 3 && !other.gameObject.CompareTag("Container"))
+        {
+            other.gameObject.layer = 6;
+            foreach (Transform child in other.gameObject.transform)
+            {
+                child.gameObject.layer = 6;
+            }
+        }
     }
 
 }
