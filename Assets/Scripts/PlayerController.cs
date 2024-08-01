@@ -29,13 +29,34 @@ public class PlayerController : MonoBehaviour
     {
         fruitPrefabs = GameManager.Instance.FruitPrefabs;
         container = GameManager.Instance.Container;
-        spawnPosition = playerHand.transform.position + spawnOffset;
+        if(playerHand != null)
+        {
+            spawnPosition = playerHand.transform.position + spawnOffset;
+        }
+        else
+        {
+            Debug.Log("PlayerController: `playerHand` is null.");
+        }
 
     }
     // Update is called once per frame
     void Update()
     {
-        SpawnRandomFruit();
+        if(fruitPrefabs != null)
+        {
+            if(container != null)
+            {
+                SpawnRandomFruit();
+            }
+            else
+            {
+                Debug.Log("PlayerController: `fruitPrefabs` is null.");
+            }
+        }
+        else
+        {
+            Debug.Log("PlayerController: `container` is null.");
+        }
     }
     private void SpawnRandomFruit()
     {
@@ -47,7 +68,7 @@ public class PlayerController : MonoBehaviour
 
             fruitSpawned = Instantiate(fruitPrefabs[fruitIndex], spawnPosition, fruitPrefabs[fruitIndex].transform.rotation, container.transform);
             fruitSpawned.layer = 3;
-            foreach (Transform child in fruitSpawned.gameObject.transform)
+            foreach (Transform child in fruitSpawned.transform)
             {
                 child.gameObject.layer = 3;
             }
@@ -57,60 +78,76 @@ public class PlayerController : MonoBehaviour
         }
 
         //increase the force while mouse is held down
-        if (Input.GetMouseButton(0) && isAFruitInHand)
+        if(fruitSpawned != null)
         {
-            /*Debug.Log("left mouse button is held down");*/
-
-            if (pullForce < 80f)
+            if (Input.GetMouseButton(0) && isAFruitInHand)
             {
-                pullForce += 5f * Time.deltaTime;
+                /*Debug.Log("left mouse button is held down");*/
+
+                if (pullForce < 80f)
+                {
+                    pullForce += 5f * Time.deltaTime;
+
+                }
+                /*Debug.Log("pullForce: " + pullForce);*/
+
+                //create a trembling effect to indicate the force
+                Vector3 pullingAnimation = new Vector3(Random.Range(-0.01f, 0.01f), Random.Range(-0.01f, 0.01f), (Random.Range(-0.01f, 0.0f) - pullForce * 0.005f));
+
+                //while mouse being held down, check mouse movement to change the projection direction
+                /* Debug.Log("mouse move: " + Input.GetAxis("Mouse X"));*/
+                if ((projectionAngleX < -15f && Input.GetAxis("Mouse X") > 0f)
+                    || (projectionAngleX > 15f && Input.GetAxis("Mouse X") < 0f)
+                    || (projectionAngleX > -15f && projectionAngleX < 15f))
+                {
+                    projectionAngleX += Input.GetAxis("Mouse X");
+                }
+                if ((projectionAngleY < -15f && Input.GetAxis("Mouse Y") > 0f)
+                    || (projectionAngleY > 15f && Input.GetAxis("Mouse Y") < 0f)
+                    || (projectionAngleY > -15f && projectionAngleY < 15f))
+                {
+                    projectionAngleY += Input.GetAxis("Mouse Y");
+                }
+
+                directionIndicator.transform.eulerAngles = new Vector3(
+                    directionIndicator.transform.eulerAngles.x,
+                    90f + projectionAngleX,
+                    90f - projectionAngleY
+                );
+
+                fruitSpawned.transform.position = spawnPosition + pullingAnimation + new Vector3(projectionAngleX * 0.005f, projectionAngleY * 0.005f, 0f);
 
             }
-            /*Debug.Log("pullForce: " + pullForce);*/
-
-            //create a trembling effect to indicate the force
-            Vector3 pullingAnimation = new Vector3(Random.Range(-0.01f, 0.01f), Random.Range(-0.01f, 0.01f), (Random.Range(-0.01f, 0.0f) - pullForce * 0.005f));
-
-            //while mouse being held down, check mouse movement to change the projection direction
-           /* Debug.Log("mouse move: " + Input.GetAxis("Mouse X"));*/
-            if((projectionAngleX < -15f && Input.GetAxis("Mouse X") > 0f)
-                || (projectionAngleX >15f && Input.GetAxis("Mouse X") < 0f)
-                || (projectionAngleX > -15f && projectionAngleX < 15f))
-            {
-                projectionAngleX += Input.GetAxis("Mouse X");
-            }
-            if ((projectionAngleY < -15f && Input.GetAxis("Mouse Y") > 0f)
-                || (projectionAngleY > 15f && Input.GetAxis("Mouse Y") < 0f)
-                || (projectionAngleY > -15f && projectionAngleY < 15f))
-            {
-                projectionAngleY += Input.GetAxis("Mouse Y");
-            }
-
-            directionIndicator.transform.eulerAngles = new Vector3(
-                directionIndicator.transform.eulerAngles.x,
-                90f + projectionAngleX,
-                90f - projectionAngleY
-            );
-
-            fruitSpawned.transform.position = spawnPosition + pullingAnimation + new Vector3(projectionAngleX * 0.005f, projectionAngleY * 0.005f, 0f);
-
-
-
         }
+        else //reset all status
+        {
+            Debug.Log("PlayerController: `fruitSpawned` is null.");
+
+            isAFruitInHand = false;
+        }
+       
 
         //project the fruit when mouse up
-        if (Input.GetMouseButtonUp(0))
+        if(fruitRb!=null)
         {
-            fruitRb.AddForce(pullForce * (fruitSpawned.transform.position - playerHand.transform.position), ForceMode.Impulse);
-            /*Debug.Log("left mouse button up");*/
+            if (Input.GetMouseButtonUp(0))
+            {
+                fruitRb.AddForce(pullForce * (fruitSpawned.transform.position - playerHand.transform.position), ForceMode.Impulse);
+                /*Debug.Log("left mouse button up");*/
+                isAFruitInHand = false;
+
+                //reset force
+                pullForce = 10f;
+                //reset angle
+                projectionAngleX = 0.0f;
+                projectionAngleY = 0.0f;
+            }
+        }
+        else
+        {
+            Debug.Log("PlayerController: `fruitRb` is null.");
+
             isAFruitInHand = false;
-
-            //reset force
-            pullForce = 10f;
-            //reset angle
-            projectionAngleX = 0.0f;
-            projectionAngleY = 0.0f;
-
         }
     }
 

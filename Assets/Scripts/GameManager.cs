@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public GameObject Container;
     public GameObject[] FruitPrefabs;
     public bool IsFruitMerging = false;
+
     public bool GameOver = false;
     
     //
@@ -51,10 +52,13 @@ public class GameManager : MonoBehaviour
             /*Debug.Log("fruit merging");*/
             _fruitMerged = Instantiate(FruitPrefabs[fruitIndex + 1], mergePosition, FruitPrefabs[fruitIndex + 1].transform.rotation, Container.transform);
 
-            DataManager.Instance.CurrentScore += (fruitIndex + 1);
+            if(DataManager.Instance != null)
+            {
+                DataManager.Instance.CurrentScore += (fruitIndex + 1);
+            }
 
-            //make sure the new fruit object and children have the correct layer setting
-            _fruitMerged.layer = 6;
+        //make sure the new fruit object and children have the correct layer setting
+        _fruitMerged.layer = 6;
             foreach (Transform child in _fruitMerged.transform)
             {
                 child.gameObject.layer = 6;

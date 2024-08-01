@@ -15,11 +15,6 @@ public class ContainerRotation : MonoBehaviour
 
             /*Debug.Log(Input.GetAxis("Horizontal"));*/
 
-            // Rotate smoothly by converting the angles into a quaternion.
-            //Referece:https://docs.unity3d.com/ScriptReference/Transform-rotation.html
-            /*float rotationAroundY = Input.GetAxis("Horizontal");
-            Quaternion target = Quaternion.Euler(0f, rotationAroundY,0f);
-            transform.rotation = Quaternion.Slerp(transform.rotation, target, Time.deltaTime *smooth);*/
             float rotationAroundY = Input.GetAxis("Horizontal");
 
             Vector3 center = transform.GetChild(0).GetChild(0).position;
