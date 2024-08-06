@@ -13,23 +13,42 @@ public class HighScoresDisplay : MonoBehaviour
     //maximum high score records
     private readonly int _highScoresCount = 10;
 
+    private bool _isHighScoresDisplayed = false;
+
     // Start is called before the first frame update
     void Awake()
     {
         DisplayHighScores();
     }
-    private void DisplayHighScores()
+
+    private void Update()
     {
-        highScores = DataManager.Instance.HighScores;
-        highScoresText.text = "";
-        for (int i = 1; i <= _highScoresCount; i++)
+        if (!_isHighScoresDisplayed) //in case DataManager didn't instantiate before this component
         {
-            highScoresText.text += i + ". " + highScores[i - 1].Name + " " + highScores[i - 1].Score + "\n";
-            Debug.Log(i + ". " + highScores[i - 1].Name + " " + highScores[i - 1].Score + "\n");
+            DisplayHighScores();
+            _isHighScoresDisplayed=true;
+        }
+        if(GameManager.Instance.IsGamePaused || GameManager.Instance.IsGameOver)
+        {
+            DisplayHighScores();
+            _isHighScoresDisplayed = true;
+
         }
     }
-    public void BackToStartMenu()
+    private void DisplayHighScores()
     {
-        SceneManager.LoadScene("Start Menu");
+        if(DataManager.Instance != null)
+        {
+            highScores = DataManager.Instance.HighScores;
+            highScoresText.text = "";
+            for (int i = 1; i <= _highScoresCount; i++)
+            {
+                highScoresText.text += i + ". " + highScores[i - 1].Name + " " + highScores[i - 1].Score + "\n";
+                /*Debug.Log(i + ". " + highScores[i - 1].Name + " " + highScores[i - 1].Score + "\n");*/
+            }
+            _isHighScoresDisplayed = true;
+
+        }
+
     }
 }

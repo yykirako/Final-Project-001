@@ -5,19 +5,26 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     //important public accessible properties declared here
     public static GameManager Instance;
+
+    //fruits status
     public GameObject Container;
     public GameObject[] FruitPrefabs;
     public bool IsFruitMerging = false;
-
-    public bool GameOver = false;
-    
-    //
     private GameObject _fruitMerged;
+
+    //game status
+    public bool IsGameOver = false;
+    public bool IsGameStarted = false;
+    public bool IsGamePaused = false;
+    /*[SerializeField] private GameObject darkBackground;*/
+    [SerializeField] private GameObject mainGame;
+    [SerializeField] private GameObject menuUI;
 
     private int _currentScore;
 
@@ -39,9 +46,37 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape))
+        //Esc key to pause the game
+        if(IsGameStarted &&
+            !IsGamePaused &&
+            !IsGameOver &&
+            Input.GetKeyDown(KeyCode.Escape))
         {
-            ExitGame();
+            /*ExitGame();*/
+            IsGamePaused = true;
+        }
+
+        if (!IsGameStarted)
+        {
+            mainGame.SetActive(false);
+            menuUI.SetActive(true);
+            
+        }else{       
+            if (!IsGamePaused && !IsGameOver)
+            {
+                mainGame.SetActive(true);
+                menuUI.SetActive(false);
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    IsGamePaused = true;
+                }
+            }
+            if (IsGamePaused || IsGameOver)
+            {
+                mainGame.SetActive(false);
+                menuUI.SetActive(true);
+            }
+
         }
     }
 
@@ -67,10 +102,45 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void ExitGame()
+    public void PauseGame()
+    {
+        Time.timeScale = 0.0f;
+        IsGamePaused = true;
+    }
+    public void ResumeGame()
+    {
+        Time.timeScale = 1.0f;
+        IsGamePaused = false;
+    }
+
+    public void RestartGame()
     {
         DataManager.Instance.SaveHighScore();
         DataManager.Instance.SavetoJson();
+
+
+        //reset everything
+        DataManager.Instance.CurrentScore = 0;
+        foreach (Transform child in Container.transform)
+        {
+            if (!child.gameObject.CompareTag("Container"))
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+
+        Time.timeScale = 1.0f;
+        IsGameOver = false;
+    }
+    public void ExitGame()
+    {
+        if(DataManager.Instance != null)
+        {
+            DataManager.Instance.SaveHighScore();
+            DataManager.Instance.SavetoJson();
+        }
+        
         #if UNITY_EDITOR
                 EditorApplication.ExitPlaymode();
         #else

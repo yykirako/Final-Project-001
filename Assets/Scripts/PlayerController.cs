@@ -25,7 +25,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 spawnPosition;
     private bool isAFruitInHand = false;
 
-    private void Awake()
+    private void Start()
     {
         fruitPrefabs = GameManager.Instance.FruitPrefabs;
         container = GameManager.Instance.Container;
@@ -121,7 +121,7 @@ public class PlayerController : MonoBehaviour
         }
         else //reset all status
         {
-            Debug.Log("PlayerController: `fruitSpawned` is null.");
+            /*Debug.Log("PlayerController: `fruitSpawned` is null.");*/
 
             isAFruitInHand = false;
         }
@@ -145,7 +145,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            Debug.Log("PlayerController: `fruitRb` is null.");
+            /*Debug.Log("PlayerController: `fruitRb` is null.");*/
 
             isAFruitInHand = false;
         }
