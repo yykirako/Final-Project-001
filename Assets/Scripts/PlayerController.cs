@@ -3,12 +3,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-   /* [SerializeField] private GameObject gameManager;*/
-
     [SerializeField] private GameObject directionIndicator;
+    [SerializeField] private Image forceBar;
+
     private float projectionAngleX = 0f;
     private float projectionAngleY = 0f;
 
@@ -20,6 +21,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private GameObject playerHand;
     [SerializeField] private float pullForce = 10f;
+    [SerializeField] private float forceIncrease = 10f;
+    [SerializeField] private float maxForce = 50f;
 
     [SerializeField] private Vector3 spawnOffset = new Vector3 (0, 0.5f, 1f); //fruit spawning positon to hand
     private Vector3 spawnPosition;
@@ -75,18 +78,21 @@ public class PlayerController : MonoBehaviour
 
             isAFruitInHand = true;
             fruitRb = fruitSpawned.GetComponent<Rigidbody>();
+
         }
 
         //increase the force while mouse is held down
-        if(fruitSpawned != null)
+        if (fruitSpawned != null)
         {
             if (Input.GetMouseButton(0) && isAFruitInHand)
             {
                 /*Debug.Log("left mouse button is held down");*/
 
-                if (pullForce < 80f)
+                if (pullForce < maxForce)
                 {
-                    pullForce += 5f * Time.deltaTime;
+                    pullForce += forceIncrease * Time.deltaTime;
+                    forceBar.fillAmount = Mathf.Clamp01(pullForce / maxForce);
+
 
                 }
                 /*Debug.Log("pullForce: " + pullForce);*/
@@ -132,6 +138,8 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetMouseButtonUp(0))
             {
+                gameObject.GetComponent<AudioSource>().Play();
+
                 fruitRb.AddForce(pullForce * (fruitSpawned.transform.position - playerHand.transform.position), ForceMode.Impulse);
                 /*Debug.Log("left mouse button up");*/
                 isAFruitInHand = false;

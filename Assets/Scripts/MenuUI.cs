@@ -41,6 +41,7 @@ public class MenuUI : MonoBehaviour
             if (GameManager.Instance.IsGameOver)
             {
                 titleText.text = "Game over :( Your score: " + DataManager.Instance.CurrentScore;
+                titleText.color = Color.red;
                 startButton.text = "Restart";
             }
         }
