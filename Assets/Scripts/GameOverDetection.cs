@@ -7,7 +7,8 @@ public class GameOverDetection : MonoBehaviour
 {
     private bool _isColliding = false;
 
-    [SerializeField] private float _timer;
+    [SerializeField] private float _timer; //timer to record colliding time
+
     //seconds to save oneself before game over
     [SerializeField] float gameOverBuffer = 5f;
 
@@ -24,11 +25,12 @@ public class GameOverDetection : MonoBehaviour
             _timer += Time.deltaTime;
 
         }
-
+        //game over when the fruits colliding with the detector for over [gameOverBuffer] seconds
         if (_timer > gameOverBuffer)
         {
-            GameManager.Instance.IsGameOver = true;
+            GameManager.Instance.GameOver();
             _alertSE.Stop();
+            _timer = 0f;
 
         }
     }
@@ -48,7 +50,6 @@ public class GameOverDetection : MonoBehaviour
             {
                 _isColliding = true;
                 _alertSE.Play();
-
             }
         }
     }
@@ -62,7 +63,9 @@ public class GameOverDetection : MonoBehaviour
             || other.gameObject.CompareTag("Apple")
             || other.gameObject.CompareTag("Orange")
             || other.gameObject.CompareTag("Lemon")
-            || other.gameObject.CompareTag("Lime"))
+            || other.gameObject.CompareTag("Lime")
+            || other.gameObject.CompareTag("Grape")
+            || other.gameObject.CompareTag("Cherry"))
         {
             if (_isColliding && !GameManager.Instance.IsGameOver)
             {

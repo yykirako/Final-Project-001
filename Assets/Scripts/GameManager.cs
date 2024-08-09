@@ -22,7 +22,11 @@ public class GameManager : MonoBehaviour
     public bool IsGameOver = false;
     public bool IsGameStarted = false;
     public bool IsGamePaused = false;
-    /*[SerializeField] private GameObject darkBackground;*/
+    public bool IsBatteryCharging = true;
+    public bool IsBatteryCharged = false; //=is dash mode ready to launch
+    public bool IsDashMode = false;
+
+
     [SerializeField] private GameObject mainGame;
     [SerializeField] private GameObject menuUI;
 
@@ -41,42 +45,28 @@ public class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        
+
+        //display menu but not the main game at the start
+        mainGame.SetActive(false);
+        menuUI.SetActive(true);
+
     }
 
     private void Update()
     {
-        //Esc key to pause the game
-        if(IsGameStarted &&
-            !IsGamePaused &&
+        //Esc key to pause/resume the game
+        if (IsGameStarted &&
             !IsGameOver &&
             Input.GetKeyDown(KeyCode.Escape))
         {
-            /*ExitGame();*/
-            IsGamePaused = true;
-        }
-
-        if (!IsGameStarted)
-        {
-            mainGame.SetActive(false);
-            menuUI.SetActive(true);
-            
-        }else{       
-            if (!IsGamePaused && !IsGameOver)
+            if (IsGamePaused)
             {
-                mainGame.SetActive(true);
-                menuUI.SetActive(false);
-                if (Input.GetKeyDown(KeyCode.Escape))
-                {
-                    IsGamePaused = true;
-                }
+                ResumeGame();
             }
-            if (IsGamePaused || IsGameOver)
+            else
             {
-                mainGame.SetActive(false);
-                menuUI.SetActive(true);
+                PauseGame();
             }
-
         }
     }
 
@@ -101,22 +91,53 @@ public class GameManager : MonoBehaviour
 
     }
 
-
-    public void PauseGame()
+    public void StartGame()
     {
+        Debug.Log("GameManager: game is started.");
+
+        IsGameStarted = true;
+        mainGame.SetActive(true);
+        menuUI.SetActive(false);
+
+    }
+    private void PauseGame()
+    {
+        Debug.Log("GameManager: game is paused.");
+
         Time.timeScale = 0.0f;
         IsGamePaused = true;
-    }
-    public void ResumeGame()
-    {
-        Time.timeScale = 1.0f;
-        IsGamePaused = false;
+        mainGame.SetActive(false);
+        menuUI.SetActive(true);
     }
 
-    public void RestartGame()
+    public void ResumeGame()
     {
+        Debug.Log("GameManager: game is resumed.");
+        
+        Time.timeScale = 1.0f;
+        IsGamePaused = false;
+        mainGame.SetActive(true);
+        menuUI.SetActive(false);
+    }
+
+    public void GameOver()
+    {
+        Debug.Log("GameManager: game over.");
+
+        IsGameOver = true;
+        Time.timeScale = 0.0f;
+
+        mainGame.SetActive(false);
+        menuUI.SetActive(true);
+
+        //note the game scores
         DataManager.Instance.SaveHighScore();
         DataManager.Instance.SavetoJson();
+
+    }
+    public void RestartGame()
+    {
+        Debug.Log("GameManager: game is restarted.");
 
 
         //reset everything
@@ -129,9 +150,12 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
         Time.timeScale = 1.0f;
+        mainGame.SetActive(true);
+        menuUI.SetActive(false);
+
         IsGameOver = false;
+
     }
     public void ExitGame()
     {
@@ -140,9 +164,10 @@ public class GameManager : MonoBehaviour
             DataManager.Instance.SaveHighScore();
             DataManager.Instance.SavetoJson();
         }
-        
+        Debug.Log("GameManager: game is quited.");
+
         #if UNITY_EDITOR
-                EditorApplication.ExitPlaymode();
+        EditorApplication.ExitPlaymode();
         #else
                                 Application.Quit(); // original code to quit Unity player
         #endif

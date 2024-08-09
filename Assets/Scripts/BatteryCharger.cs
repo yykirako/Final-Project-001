@@ -6,8 +6,7 @@ using UnityEngine.UI;
 public class BatteryCharger : MonoBehaviour
 {
     [SerializeField] private Image batteryImage;
-    [SerializeField] private float chargingThreshold = 50f;
-    private bool _isCharging = true;
+    [SerializeField] private float chargingThreshold = 50f; //scores this amount to fully charge the battery
 
     void Start()
     {
@@ -22,26 +21,20 @@ public class BatteryCharger : MonoBehaviour
 
     void Update()
     {
-        if (_isCharging)
+        if (GameManager.Instance.IsBatteryCharging)
         {
-            batteryImage.fillAmount = Mathf.Clamp01(DataManager.Instance.CurrentScore / chargingThreshold);
-
-            if (batteryImage.fillAmount >= 1f)
+            if (!GameManager.Instance.IsDashMode)
             {
-                _isCharging = false;
-                Debug.Log("Battery fully charged!");
+                batteryImage.fillAmount = Mathf.Clamp01(DataManager.Instance.CurrentScore / chargingThreshold);
+
+                if (batteryImage.fillAmount >= 1f)
+                {
+                    GameManager.Instance.IsBatteryCharging = false;
+                    GameManager.Instance.IsBatteryCharged = true;
+                    Debug.Log("Battery fully charged!");
+                }
             }
+            
         }
-    }
-
-    public void StartCharging()
-    {
-        _isCharging = true;
-        batteryImage.fillAmount = 0f;
-    }
-
-    public void StopCharging()
-    {
-        _isCharging = false;
     }
 }

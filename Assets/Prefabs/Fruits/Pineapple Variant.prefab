@@ -55,9 +55,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.23131877
-  m_Height: 0.8784672
+  m_Height: 0.7919606
   m_Direction: 1
-  m_Center: {x: 0, y: 0.42695707, z: -0.0019853115}
+  m_Center: {x: 0, y: 0.38370377, z: -0.0019853115}
 --- !u!54 &9191411608586145925
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -202,9 +202,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.080095656
-  m_Height: 0.32141763
+  m_Height: 0.27647918
   m_Direction: 1
-  m_Center: {x: 0, y: 0.1607117, z: 0}
+  m_Center: {x: 0, y: 0.13824248, z: 0}
 --- !u!4 &2294146336143588548 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4836549550198323063, guid: d972dd5a3ae8cb143ac578025f46bf3a, type: 3}

@@ -47,6 +47,7 @@ public class IntroSlides : MonoBehaviour
                 titleImages.gameObject.SetActive(false);
                 introImages[0].gameObject.SetActive(true);
                 timer = 0f;
+                _isSlideshowStart = true;
             }
         }
         // Skip the intro if the skip key is pressed

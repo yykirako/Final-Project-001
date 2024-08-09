@@ -49,10 +49,10 @@ public class MenuUI : MonoBehaviour
 
     public void StartGame()
     {
-        Debug.Log("Start game button onclick - MenuUI:StartGame()");
+        Debug.Log("(Re)Start/resume game button onclick - MenuUI:StartGame()");
         if(!GameManager.Instance.IsGameStarted)
         {
-            GameManager.Instance.IsGameStarted = true;
+            GameManager.Instance.StartGame();
         }
         else
         {
