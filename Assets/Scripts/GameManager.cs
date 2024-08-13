@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject mainGame;
     [SerializeField] private GameObject menuUI;
 
-    private int _currentScore;
+    
 
 
     // Start is called before the first frame update

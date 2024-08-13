@@ -93,8 +93,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.42770022
-  m_Center: {x: -0.0066494048, y: 0.3693384, z: -0.017198324}
+  m_Radius: 0.423398
+  m_Center: {x: -0.006649375, y: 0.3657908, z: -0.017198205}
 --- !u!1001 &4762071714460382160
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,6 +103,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 5785459601269330320}
     m_Modifications:
+    - target: {fileID: 336581710442452965, guid: 0605e3143077e3649860b77be103454d, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 6723580601522748004, guid: f0064adfc7f2b204cbeef70b18ed99f2, type: 3}
+    - target: {fileID: 2544305098071221039, guid: 0605e3143077e3649860b77be103454d, type: 3}
+      propertyPath: m_SelectedEditorRenderState
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3676094931604068416, guid: 0605e3143077e3649860b77be103454d, type: 3}
       propertyPath: m_LocalScale.x
       value: 10
@@ -121,7 +129,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3676094931604068416, guid: 0605e3143077e3649860b77be103454d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.15
       objectReference: {fileID: 0}
     - target: {fileID: 3676094931604068416, guid: 0605e3143077e3649860b77be103454d, type: 3}
       propertyPath: m_LocalPosition.z
