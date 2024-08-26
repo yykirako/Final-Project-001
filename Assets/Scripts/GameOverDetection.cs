@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class GameOverDetection : MonoBehaviour
 {
-    private bool _isColliding = false;
 
     [SerializeField] private float _timer; //timer to record colliding time
 
@@ -20,10 +19,13 @@ public class GameOverDetection : MonoBehaviour
     }
     private void Update()
     {
-        if (_isColliding)
+        if (GameManager.Instance.IsGameOverCountingDown && !GameManager.Instance.IsDashMode)
         {
             _timer += Time.deltaTime;
-
+        }
+        else
+        {
+            _alertSE.Stop();
         }
         //game over when the fruits colliding with the detector for over [gameOverBuffer] seconds
         if (_timer > gameOverBuffer)
@@ -31,13 +33,14 @@ public class GameOverDetection : MonoBehaviour
             GameManager.Instance.GameOver();
             _alertSE.Stop();
             _timer = 0f;
+            GameManager.Instance.IsGameOverCountingDown=false;
 
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("ContainerTop: triggerEnter");
+        /*Debug.Log("ContainerTop: triggerEnter");*/
         if (other.gameObject.CompareTag("Watermelon")
             || other.gameObject.CompareTag("Pineapple")
             || other.gameObject.CompareTag("Melon")
@@ -46,16 +49,16 @@ public class GameOverDetection : MonoBehaviour
             || other.gameObject.CompareTag("Lemon")
             || other.gameObject.CompareTag("Lime"))
         {
-            if (!_isColliding && !GameManager.Instance.IsGameOver)
+            if (!GameManager.Instance.IsGameOverCountingDown && !GameManager.Instance.IsGameOver)
             {
-                _isColliding = true;
+                GameManager.Instance.IsGameOverCountingDown = true;
                 _alertSE.Play();
             }
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log("ContainerTop: triggerExit");
+        /*Debug.Log("ContainerTop: triggerExit");*/
 
         if (other.gameObject.CompareTag("Watermelon")
             || other.gameObject.CompareTag("Pineapple")
@@ -67,10 +70,10 @@ public class GameOverDetection : MonoBehaviour
             || other.gameObject.CompareTag("Grape")
             || other.gameObject.CompareTag("Cherry"))
         {
-            if (_isColliding && !GameManager.Instance.IsGameOver)
+            if (GameManager.Instance.IsGameOverCountingDown && !GameManager.Instance.IsGameOver)
             {
                 _alertSE.Pause();
-                _isColliding = false;
+                GameManager.Instance.IsGameOverCountingDown = false;
                 _timer = 0f;
 
             }

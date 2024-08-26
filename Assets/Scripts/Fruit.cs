@@ -26,9 +26,12 @@ public class Fruit : MonoBehaviour
     private void Update()
     {
         yPosition = transform.position.y;
-        if (yPosition < -50)
+        if (yPosition < -10)
         {
+            Debug.Log("Fruit: out of boundry");
             Destroy(gameObject);
+            DataManager.Instance.CurrentScore -= 5;
+            
         }
     }
     private void OnCollisionEnter(Collision collision)

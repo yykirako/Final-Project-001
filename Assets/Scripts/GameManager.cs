@@ -9,9 +9,9 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    //important public accessible properties declared here
+    
     public static GameManager Instance;
-
+    //important public accessible properties
     //fruits status
     public GameObject Container;
     public GameObject[] FruitPrefabs;
@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
 
     //game status
     public bool IsGameOver = false;
+    public bool IsGameOverCountingDown = false;
     public bool IsGameStarted = false;
     public bool IsGamePaused = false;
     public bool IsBatteryCharging = true;
@@ -29,6 +30,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject mainGame;
     [SerializeField] private GameObject menuUI;
+
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private GameObject cameraPosition;
 
     
 
@@ -154,9 +158,15 @@ public class GameManager : MonoBehaviour
         mainGame.SetActive(true);
         menuUI.SetActive(false);
 
-        IsGameOver = false;
+        mainCamera.transform.position = cameraPosition.transform.position;
 
-    }
+        IsGameOver = false;
+        IsGamePaused = false;
+        IsBatteryCharging = true;
+        IsBatteryCharged = false; //=is dash mode ready to launch
+        IsDashMode = false;
+
+}
     public void ExitGame()
     {
         if(DataManager.Instance != null)
@@ -168,8 +178,14 @@ public class GameManager : MonoBehaviour
 
         #if UNITY_EDITOR
         EditorApplication.ExitPlaymode();
-        #else
-                                Application.Quit(); // original code to quit Unity player
-        #endif
+#elif UNITY_WEBGL
+        // Do nothing in WebGL builds
+        Debug.Log("Quit button pressed in WebGL mode. No action taken.");
+#elif UNITY_STANDALONE
+            Application.Quit(); 
+
+#endif
     }
+
+
 }

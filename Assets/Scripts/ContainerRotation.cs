@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class ContainerRotation : MonoBehaviour
 {
     [SerializeField]
-    private float rotationSpeed = 30f;
+    private float rotationSpeed = 50f;
     void Update()
     {
         if (Input.anyKey)
@@ -15,8 +15,9 @@ public class ContainerRotation : MonoBehaviour
 
             Vector3 center = transform.GetChild(0).GetChild(0).position;
 
+            
             //rotate the container and what inside around Y axis
-            transform.RotateAround(center, Vector3.up, rotationAroundY * rotationSpeed * Time.deltaTime);
+            transform.RotateAround(center, Vector3.up, -rotationAroundY * rotationSpeed * Time.deltaTime);
         }
         
         

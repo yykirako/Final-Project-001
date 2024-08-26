@@ -14,8 +14,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject _directionIndicator;
     [SerializeField] private Image _forceBar;
     [SerializeField] private Image _forceBarShiner;
+    [SerializeField] private TMPro.TextMeshProUGUI _forceText;
     [SerializeField] private MainGameUI _mainGameUI;
-
 
     private float _projectionAngleX = 0f;
     private float _projectionAngleY = 0f;
@@ -35,13 +35,15 @@ public class PlayerController : MonoBehaviour
     private bool _isAFruitInHand = false;
 
     //dash mode attributes
+    [SerializeField] private GameObject _wormholeMoment;
     private Vector3 _cameraForward = new Vector3(0f, -0.25f, 4.5f);//camera close to containor
     [SerializeField] private bool _isFruitSwallowed = false;
     private GameObject _fruitSwallowed;
-    /*[SerializeField] private float _blastForce = 5f;*/
+    [SerializeField] private float _blastForce = 5f;
     private float _raycastLength = 5f;
-    
-
+    [SerializeField] private AudioSource _fruitVacuumSE;
+    [SerializeField] private AudioSource _fruitBlastSE;
+    [SerializeField] private AudioSource _watermelonEnjoyed;
 
     private void Start()
     {
@@ -72,10 +74,7 @@ public class PlayerController : MonoBehaviour
                     {
                         if (Input.GetKeyUp(KeyCode.Space)) //enter "dimensional dash" mode
                         {
-                            Debug.Log("Entering Dimensional Dash mode...");
-                            GameManager.Instance.IsDashMode = true;
-                            _mainCamera.transform.position += _cameraForward;
-                            _mainGameUI.SetCursorNormal();
+                            DashModeIn();
                         }
                     }
                 }
@@ -169,10 +168,13 @@ public class PlayerController : MonoBehaviour
         {
             _pullForce += _forceIncrease * Time.deltaTime;
             _forceBar.fillAmount = Mathf.Clamp01((_pullForce-_minForce) / (_maxForce-_minForce));
+
+            float forcePercentage = Mathf.Round((_pullForce - _minForce) / (_maxForce - _minForce) * 100);
+            _forceText.text = "Force: " + forcePercentage.ToString() + " %";
         }
         if (_pullForce >= _maxForce)
         {
-            Debug.Log("PlayerController: IncreaseForce: pull force max: " + _pullForce);
+            /*Debug.Log("PlayerController: IncreaseForce: pull force max: " + _pullForce);*/
             _forceBarShiner.gameObject.SetActive(true);
         }
 
@@ -219,6 +221,8 @@ public class PlayerController : MonoBehaviour
         _pullForce = _minForce;
         _forceBar.fillAmount = 0f;
         _forceBarShiner.gameObject.SetActive(false);
+        _forceText.text = "Force: 0%";
+
         //reset angle
         _projectionAngleX = 0.0f;
         _projectionAngleY = 0.0f;
@@ -241,48 +245,96 @@ public class PlayerController : MonoBehaviour
             // Sort hits by distance to find the closest fruit
             System.Array.Sort(hits, (hit1, hit2) => hit1.distance.CompareTo(hit2.distance));
 
-            foreach (RaycastHit hit in hits)
+            if (!_isFruitSwallowed)
             {
-                GameObject _hitObject = hit.collider.gameObject;
-
-                // Check if the hit object has a Fruit component
-                if (_hitObject.GetComponent<Fruit>() != null)
+                foreach (RaycastHit hit in hits)
                 {
-                    Debug.Log("PlayerController: Raycast hit fruit: " + _hitObject.name);
-                    if (!_isFruitSwallowed)
+                    GameObject _hitObject = hit.collider.gameObject;
+
+                    // Check if the hit object has a Fruit component
+                    if (_hitObject.GetComponent<Fruit>() != null)
                     {
+                        /*Debug.Log("PlayerController: Raycast hit fruit: " + _hitObject.name);*/
                         Debug.Log("PlayerController: Fruit Vacuum");
 
-                        _fruitSwallowed = _hitObject;
-                        _fruitSwallowed.SetActive(false); // Hide the fruit
-                        _isFruitSwallowed = true;
+                        if(_hitObject.CompareTag("Watermelon")){
+                            _watermelonEnjoyed.Play();
+                            Destroy( _hitObject );
+                            DataManager.Instance.CurrentScore += 100;
+                        }
+                        else
+                        {
+                            _fruitSwallowed = _hitObject;
+                            _fruitSwallowed.SetActive(false); // Hide the fruit
+                            _isFruitSwallowed = true;
+                            _fruitVacuumSE.Play();
+                        }
                         break; // Exit loop once the fruit is found
-
                     }
-                    else
+                }
+            }
+            else//already swallowed a fruit
+            {
+                foreach (RaycastHit hit in hits)
+                {
+                    GameObject _hitObject = hit.collider.gameObject;
+
+                    // Check if the hit object has a Fruit component
+                    if (_hitObject.GetComponent<Fruit>() != null)
                     {
-                        Debug.Log("PlayerController: Fruit Blast");
+                        Debug.Log("PlayerController: Fruit Blast at another fruit");
                         if (_fruitSwallowed != null)
                         {
                             _fruitSwallowed.transform.position = _hitObject.transform.position;
                             _fruitSwallowed.SetActive(true);
                         }
                         _isFruitSwallowed = false;
+                        break; // Exit loop once the fruit is found
+
                     }
-
+                    //blast towards the container wall (the last hit) if no fruits in the direction
+                    Debug.Log("PlayerController: Fruit Blast at cursor");
+                    if (_fruitSwallowed != null && _hitObject.CompareTag("Container"))
+                    {
+                        _fruitSwallowed.transform.position = hit.transform.position - ray.direction;
+                        _fruitSwallowed.SetActive(true);
+                        _fruitSwallowed.GetComponent<Rigidbody>().AddForce(ray.direction * _blastForce);
+                    }
+                    _fruitBlastSE.Play();
+                    _isFruitSwallowed = false;
                 }
-            }
 
-            Debug.DrawRay(ray.origin, ray.direction * _raycastLength, Color.red, 1f); // Visualize the ray
 
+                Debug.DrawRay(ray.origin, ray.direction * _raycastLength, Color.red, 1f); // Visualize the ray in editor
+}
 
         }
 
         
     }
 
+    private void DashModeIn()
+    {
+        if (GameManager.Instance.IsGameOverCountingDown)
+        {
+            GameManager.Instance.IsGameOverCountingDown = false;
+        }
+
+        Debug.Log("Entering Dimensional Dash mode...");
+        StartCoroutine(ShowAndHideTransmissionCanvas());
+
+        StartCoroutine(AudioManager.Instance.PlayDashModeBGM());
+
+        GameManager.Instance.IsDashMode = true;
+        _mainCamera.transform.position += _cameraForward;
+        _mainGameUI.SetCursorNormal();
+    }
     public void DashModeOut()
     {
+        StartCoroutine(ShowAndHideTransmissionCanvas());
+
+        StartCoroutine(AudioManager.Instance.PlayNormalBGM());
+
         _mainGameUI.HideCustomCursor();
         _mainCamera.transform.position = _cameraPosition.transform.position;
         if(_isFruitSwallowed && _fruitSwallowed != null)
@@ -290,5 +342,18 @@ public class PlayerController : MonoBehaviour
             _fruitSwallowed.SetActive(true);
             _isFruitSwallowed = false;
         }
+    }
+
+    private IEnumerator ShowAndHideTransmissionCanvas()
+    {
+        if(_wormholeMoment!=null)
+        {
+            Debug.Log("PlayerController: show transmission canvas");
+
+            _wormholeMoment.SetActive(true);
+            yield return new WaitForSeconds(1.5f);
+            _wormholeMoment.SetActive(false);
+        }
+        
     }
 }

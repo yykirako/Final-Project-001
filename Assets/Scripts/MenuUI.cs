@@ -5,17 +5,17 @@ using System.Xml.Linq;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class MenuUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI titleText;
-
     [SerializeField] private TextMeshProUGUI startButton;
 
     private TMP_InputField playerNameInputField;
     //temp field to save name input
     private string playerName;
+
+    
 
     void Start()
     {
@@ -27,6 +27,7 @@ public class MenuUI : MonoBehaviour
 
         //Display welcome text
         titleText.text = "Hihi, " + playerName + "!";
+        
     }
 
     private void Update()
@@ -101,4 +102,5 @@ public class MenuUI : MonoBehaviour
         //update the welcoming text
         titleText.text = "Hihi, " + playerName + "!";
     }
+
 }
