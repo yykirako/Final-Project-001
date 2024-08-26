@@ -10,7 +10,7 @@ public class IntroSlides : MonoBehaviour
 
 
     [SerializeField] float titleTime = 2f;
-    [SerializeField] float displayTime = 8f;
+    [SerializeField] float displayTime = 12f;
 
     private int currentImageIndex = 0;
     private float timer = 0f;

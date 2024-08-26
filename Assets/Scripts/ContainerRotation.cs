@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 public class ContainerRotation : MonoBehaviour
 {
     [SerializeField]
-    private float rotationSpeed = 50f;
+    private float rotationSpeed = 100f;
     void Update()
     {
         if (Input.anyKey)
