@@ -10,13 +10,15 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private Camera _mainCamera;
     [SerializeField] private GameObject _cameraPosition;
+    
+    [SerializeField] private MainGameUI _mainGameUI;
 
     [SerializeField] private GameObject _directionIndicator;
     [SerializeField] private Image _forceBar;
     [SerializeField] private Image _forceBarShiner;
     [SerializeField] private TMPro.TextMeshProUGUI _forceText;
-    [SerializeField] private MainGameUI _mainGameUI;
 
+    [SerializeField] private float _maxProjectionAngle = 20f;
     private float _projectionAngleX = 0f;
     private float _projectionAngleY = 0f;
 
@@ -32,7 +34,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _maxForce = 20f;
     [SerializeField] private Vector3 _spawnOffset = new Vector3(0, 0.5f, 1f); //fruit spawning positon to hand
     private Vector3 _spawnPosition;
-    private bool _isAFruitInHand = false;
+    [SerializeField] private bool _isAFruitInHand = false;
+    [SerializeField] private bool _isPulling = false;
+
 
     //dash mode attributes
     [SerializeField] private GameObject _wormholeMoment;
@@ -81,7 +85,7 @@ public class PlayerController : MonoBehaviour
                 else
                 {
                     FruitVacuumAndBlast();
-                    //set cursors
+                    //set "wormmie" cursors
                     if (_isFruitSwallowed)
                     {
                         _mainGameUI.SetCursorFilled();
@@ -107,33 +111,40 @@ public class PlayerController : MonoBehaviour
     {
 
         //spawn a random fruit when mouse down
-        if (Input.GetMouseButtonDown(0) && !_isAFruitInHand)
+        if (Input.GetMouseButtonDown(0))
         {
-            int _fruitIndex = Random.Range(0, _fruitPrefabs.Length - 4);
-            SpawnFruit(_fruitIndex);
+            _isPulling = true;
+
+            if (!_isAFruitInHand)
+            {
+                int _fruitIndex = Random.Range(0, _fruitPrefabs.Length - 4);
+                SpawnFruit(_fruitIndex);
+            }
         }
 
         //increase the force while mouse is held down
-        if (_fruitSpawned != null)
+        if (_fruitSpawned != null && _isAFruitInHand)
         {
-            if (Input.GetMouseButton(0) && _isAFruitInHand)
+            if (Input.GetMouseButton(0)&& _isPulling)
             {
-               IncreaseForce();
+                //show the direction indicator
+                _directionIndicator.SetActive(true);
+                _directionIndicator.transform.position = _spawnPosition;
+                IncreaseForce();
+            }
+            if(Input.GetMouseButtonDown(1)) //mouse right to cancel action
+            {
+                ResetFruit();
             }
         }
-        else //reset all status
-        {
-            /*Debug.Log("PlayerController: `fruitSpawned` is null.");*/
-            _isAFruitInHand = false;
-        }
-
-
         //project the fruit when mouse up
         if (_fruitRb != null)
         {
-            if (Input.GetMouseButtonUp(0))
+            if (Input.GetMouseButtonUp(0) && _isAFruitInHand && _isPulling)
             {
                 ProjectFruit();
+                _isAFruitInHand = false;
+
             }
         }
         else
@@ -157,13 +168,10 @@ public class PlayerController : MonoBehaviour
         _isAFruitInHand = true;
         _fruitRb = _fruitSpawned.GetComponent<Rigidbody>();
         _pullForce = _minForce;
-
-        //show the direction indicator
-        _directionIndicator.SetActive(true);
-        _directionIndicator.transform.position = _spawnPosition;
     }
     private void IncreaseForce()
     {
+        
         if (_pullForce < _maxForce)
         {
             _pullForce += _forceIncrease * Time.deltaTime;
@@ -183,25 +191,30 @@ public class PlayerController : MonoBehaviour
         Vector3 pullingAnimation = new Vector3(Random.Range(-0.01f, 0.01f), Random.Range(-0.01f, 0.01f), (Random.Range(-0.01f, 0.0f) - _pullForce * 0.005f));
 
         //while mouse being held down, check mouse movement to change the _projection direction
-        if ((_projectionAngleX < -15f && Input.GetAxis("Mouse X") > 0f)
-            || (_projectionAngleX > 15f && Input.GetAxis("Mouse X") < 0f)
-            || (_projectionAngleX > -15f && _projectionAngleX < 15f))
+        if ((_projectionAngleX < -_maxProjectionAngle && Input.GetAxis("Mouse X") > 0f)
+            || (_projectionAngleX > _maxProjectionAngle && Input.GetAxis("Mouse X") < 0f)
+            || (_projectionAngleX > -_maxProjectionAngle && _projectionAngleX < _maxProjectionAngle))
         {
             _projectionAngleX += Input.GetAxis("Mouse X");
         }
-        if ((_projectionAngleY < -15f && Input.GetAxis("Mouse Y") > 0f)
-            || (_projectionAngleY > 15f && Input.GetAxis("Mouse Y") < 0f)
-            || (_projectionAngleY > -15f && _projectionAngleY < 15f))
+        if ((_projectionAngleY < -_maxProjectionAngle && Input.GetAxis("Mouse Y") > 0f)
+            || (_projectionAngleY > _maxProjectionAngle && Input.GetAxis("Mouse Y") < 0f)
+            || (_projectionAngleY > -_maxProjectionAngle && _projectionAngleY < _maxProjectionAngle))
         {
             _projectionAngleY += Input.GetAxis("Mouse Y");
         }
 
         //show the force direction with the indicating arrow
-        _directionIndicator.transform.eulerAngles = new Vector3(
-            _directionIndicator.transform.eulerAngles.x,
-            90f + _projectionAngleX,
-            90f - _projectionAngleY
-        );
+        
+            float _indicatorAngleZ = ReverseTangentCalculator(_projectionAngleX, _projectionAngleY);
+            Debug.Log("indicator angle z: " + _indicatorAngleZ);
+            _directionIndicator.transform.eulerAngles = new Vector3(
+                0,
+                0,
+                _indicatorAngleZ
+            );
+        
+        
 
 
         //calculate the position of the fruit to show the trembling
@@ -215,8 +228,11 @@ public class PlayerController : MonoBehaviour
         //apply the force to the fruit
         _fruitRb.AddForce(_pullForce * (_fruitSpawned.transform.position - _playerHand.transform.position), ForceMode.Impulse);
 
-        _isAFruitInHand = false;
-
+        ResetFruit();
+    }
+    private void ResetFruit()
+    {
+        _isPulling=false;
         //reset force
         _pullForce = _minForce;
         _forceBar.fillAmount = 0f;
@@ -228,8 +244,8 @@ public class PlayerController : MonoBehaviour
         _projectionAngleY = 0.0f;
         //deactive directional indicator
         _directionIndicator.SetActive(false);
-    }
 
+    }
 
     private void FruitVacuumAndBlast()
     {
@@ -355,5 +371,32 @@ public class PlayerController : MonoBehaviour
             _wormholeMoment.SetActive(false);
         }
         
+    }
+
+    private float ReverseTangentCalculator(float x, float y)
+    {
+        float _degreeZ = 0;
+        if(x < 0)
+        {
+            _degreeZ = Mathf.Atan(y/x) * Mathf.Rad2Deg;
+            
+        }
+        if(x > 0)
+        { 
+            _degreeZ = 180 + Mathf.Atan(y / x) * Mathf.Rad2Deg;
+            
+        }
+        if(x == 0)
+        {
+            if(y<0)
+            {
+                _degreeZ = -90f;
+            }
+            else
+            {
+                _degreeZ = 90f;
+            }
+        }
+        return _degreeZ;
     }
 }
