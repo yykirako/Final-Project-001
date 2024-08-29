@@ -3,9 +3,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,6 +19,8 @@ public class GameManager : MonoBehaviour
     public GameObject[] FruitPrefabs;
     public bool IsFruitMerging = false;
     private GameObject _fruitMerged;
+    [SerializeField] private AudioSource _SE_fruitMerge;
+    [SerializeField] private AudioSource _SE_fruitDrop;
 
     //game status
     public bool IsGameOver = false;
@@ -26,15 +30,16 @@ public class GameManager : MonoBehaviour
     public bool IsBatteryCharging = true;
     public bool IsBatteryCharged = false; //=is dash mode ready to launch
     public bool IsDashMode = false;
-
+    [SerializeField] public bool IsDarkMode = false;
 
     [SerializeField] private GameObject mainGame;
     [SerializeField] private GameObject menuUI;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private Button restartButton;
 
     [SerializeField] private Camera mainCamera;
     [SerializeField] private GameObject cameraPosition;
 
-    
 
 
     // Start is called before the first frame update
@@ -84,6 +89,13 @@ public class GameManager : MonoBehaviour
             if(DataManager.Instance != null)
             {
                 DataManager.Instance.CurrentScore += (fruitIndex + 1);
+
+            if (_SE_fruitMerge != null)
+            {
+                _SE_fruitMerge.Play();
+
+            }
+            StartCoroutine(ScoreColorGreen());
             }
 
         //make sure the new fruit object and children have the correct layer setting
@@ -92,7 +104,19 @@ public class GameManager : MonoBehaviour
             {
                 child.gameObject.layer = 6;
             }
+    }
 
+    public void DropFruit()//losing score and play an SE when a fruit is dropped
+    {
+        if(_SE_fruitDrop != null)
+        {
+            _SE_fruitDrop.Play();
+
+        }
+
+        StartCoroutine(GameManager.Instance.ScoreColorRed());
+
+        DataManager.Instance.CurrentScore -= 5;
     }
 
     public void StartGame()
@@ -102,6 +126,8 @@ public class GameManager : MonoBehaviour
         IsGameStarted = true;
         mainGame.SetActive(true);
         menuUI.SetActive(false);
+        restartButton.gameObject.SetActive(false);
+
 
     }
     private void PauseGame()
@@ -112,6 +138,7 @@ public class GameManager : MonoBehaviour
         IsGamePaused = true;
         mainGame.SetActive(false);
         menuUI.SetActive(true);
+        restartButton.gameObject.SetActive(true);
     }
 
     public void ResumeGame()
@@ -122,6 +149,8 @@ public class GameManager : MonoBehaviour
         IsGamePaused = false;
         mainGame.SetActive(true);
         menuUI.SetActive(false);
+        restartButton.gameObject.SetActive(false);
+
     }
 
     public void GameOver()
@@ -133,6 +162,8 @@ public class GameManager : MonoBehaviour
 
         mainGame.SetActive(false);
         menuUI.SetActive(true);
+        restartButton.gameObject.SetActive(false);
+
 
         //note the game scores
         DataManager.Instance.SaveHighScore();
@@ -142,8 +173,6 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         Debug.Log("GameManager: game is restarted.");
-
-
         //reset everything
         DataManager.Instance.CurrentScore = 0;
         foreach (Transform child in Container.transform)
@@ -157,6 +186,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1.0f;
         mainGame.SetActive(true);
         menuUI.SetActive(false);
+        restartButton.gameObject.SetActive(false);
+
 
         mainCamera.transform.position = cameraPosition.transform.position;
 
@@ -185,6 +216,29 @@ public class GameManager : MonoBehaviour
             Application.Quit(); 
 
 #endif
+    }
+
+    private IEnumerator ScoreColorRed()//score turn red when losing points
+    {
+        if (scoreText != null)
+        {
+            Debug.Log("Score dropped");
+            
+            scoreText.color = Color.red;
+            yield return new WaitForSeconds(1f);
+            scoreText.color = Color.white;
+        }
+    }
+    private IEnumerator ScoreColorGreen()//score turn green when gaining points
+    {
+        if (scoreText != null)
+        {
+            Debug.Log("Score gained");
+
+            scoreText.color = Color.green;
+            yield return new WaitForSeconds(1f);
+            scoreText.color = Color.white;
+        }
     }
 
 

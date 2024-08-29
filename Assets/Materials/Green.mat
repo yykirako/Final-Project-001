@@ -61,24 +61,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Brightness: 0.092
+    - _Brightness: 0.498
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _Detail: 0.2
+    - _Detail: 0.25
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
-    - _MinBrightness: 0.376
+    - _MinBrightness: 0.3
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Strength: 0.3
+    - _Strength: 0.369
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:

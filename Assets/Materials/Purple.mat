@@ -61,7 +61,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Brightness: 0.132
+    - _Brightness: 0.506
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _Detail: 0.3
@@ -71,16 +71,17 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 0
+    - _MinBrightness: 0.344
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Strength: 0.5
+    - _Strength: 0.518
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.90980387, g: 0, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.19339621, b: 0.7089902, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []

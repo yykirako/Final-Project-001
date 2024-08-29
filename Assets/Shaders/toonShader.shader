@@ -1,13 +1,16 @@
+//This shader was used for my 3D graphics assignments, part of the code from this tutorial:
+//https://www.youtube.com/watch?v=kfM-yu0iQBk
+
 Shader "Unlit/toonShader"
 {
  Properties
     {
         [NoScaleOffset]_MainTex ("Texture", 2D) = "white" {}
-        _Brightness("Brightness", Range(0,1)) = 0.1
-        _Strength("Strength", Range(0,1)) = 0.3
+        _Brightness("Brightness", Range(0,1)) = 0.5
+        _Strength("Strength", Range(0,1)) = 0.5
         _Color("Color", COLOR) = (1,1,1,1)
-        _Detail("Detail", Range(0,1)) = 0.3
-        _MinBrightness("Min Brightness", Range(0,1)) = 0.5
+        _Detail("Detail", Range(0,1)) = 0.25
+        _MinBrightness("Min Brightness", Range(0,1)) = 0.3
     }
     SubShader
     {
@@ -24,7 +27,6 @@ Shader "Unlit/toonShader"
             #include "Lighting.cginc"
 
             // compile shader into multiple variants, with and without shadows
-            // (we don't care about any lightmaps yet, so skip these variants)
             #pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
             // shadow helper functions and macros
             #include "AutoLight.cginc"
@@ -58,7 +60,8 @@ Shader "Unlit/toonShader"
 
             float Toon(float3 normal, float3 lightDir) {
                 //float NdotL = max(0.0,dot(normalize(normal), normalize(lightDir)));
-                float NdotL = max(_MinBrightness,dot(normal, lightDir));
+                float NdotL = max(_MinBrightness,dot(normalize(normal), normalize(lightDir)));
+                //float NdotL = max(dot(normal, lightDir), _MinBrightness);
 
                 return floor(NdotL / _Detail);
             }
@@ -89,16 +92,16 @@ Shader "Unlit/toonShader"
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
                 
-                float _mappedBrightness = map(_Brightness, 0.0, 1.0, 0.0, 0.1);
+                float _mappedBrightness = map(_Brightness, 0.0, 1.0, _MinBrightness, _MinBrightness +0.1);
 
-                col *= Toon(i.worldNormal, _WorldSpaceLightPos0.xyz) * _Strength * _Color + _mappedBrightness;
+                col *= Toon(i.worldNormal, _WorldSpaceLightPos0.xyz) * _Strength * _Color;
                 // compute shadow attenuation (1.0 = fully lit, 0.0 = fully shadowed)
                 fixed shadow = 1;
                 if(SHADOW_ATTENUATION(i)==0){
                     shadow = saturate(_Brightness*3);
                 }
                 col *= shadow;
-                col += float4(i.ambient,1);
+                col += float4(i.ambient *(5+ _MinBrightness),1);
                 return col;
             }
             ENDCG

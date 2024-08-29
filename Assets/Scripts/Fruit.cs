@@ -26,11 +26,11 @@ public class Fruit : MonoBehaviour
     private void Update()
     {
         yPosition = transform.position.y;
-        if (yPosition < -10)
+        if (yPosition < -5)
         {
             Debug.Log("Fruit: out of boundry");
+            GameManager.Instance.DropFruit();
             Destroy(gameObject);
-            DataManager.Instance.CurrentScore -= 5;
             
         }
     }

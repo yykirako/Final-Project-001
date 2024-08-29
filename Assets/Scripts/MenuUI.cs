@@ -10,6 +10,7 @@ public class MenuUI : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI titleText;
     [SerializeField] private TextMeshProUGUI startButton;
+    [SerializeField] private GameObject manualPanel;
 
     private TMP_InputField playerNameInputField;
     //temp field to save name input
@@ -101,6 +102,23 @@ public class MenuUI : MonoBehaviour
         DataManager.Instance.SavePlayerName();
         //update the welcoming text
         titleText.text = "Hihi, " + playerName + "!";
+    }
+
+    public void ShowManualPanel()
+    {
+        if(manualPanel != null)
+        {
+            manualPanel.gameObject.SetActive(true);
+
+        }
+    }
+    public void HideManualPanel()
+    {
+        if(manualPanel != null)
+        {
+            manualPanel.gameObject.SetActive(false);
+
+        }
     }
 
 }

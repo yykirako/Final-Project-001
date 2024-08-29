@@ -127,6 +127,8 @@ public class PlayerController : MonoBehaviour
         {
             if (Input.GetMouseButton(0)&& _isPulling)
             {
+                _fruitRb.isKinematic = false;
+
                 //show the direction indicator
                 _directionIndicator.SetActive(true);
                 _directionIndicator.transform.position = _spawnPosition;
@@ -134,6 +136,7 @@ public class PlayerController : MonoBehaviour
             }
             if(Input.GetMouseButtonDown(1)) //mouse right to cancel action
             {
+                _fruitRb.isKinematic = true;
                 ResetFruit();
             }
         }
@@ -205,17 +208,22 @@ public class PlayerController : MonoBehaviour
         }
 
         //show the force direction with the indicating arrow
-        
-            float _indicatorAngleZ = ReverseTangentCalculator(_projectionAngleX, _projectionAngleY);
-            Debug.Log("indicator angle z: " + _indicatorAngleZ);
-            _directionIndicator.transform.eulerAngles = new Vector3(
-                0,
-                0,
-                _indicatorAngleZ
-            );
-        
-        
 
+        float _indicatorAngleZ = ReverseTangentCalculator(_projectionAngleX, _projectionAngleY);
+        Debug.Log("indicator angle z: " + _indicatorAngleZ);
+        _directionIndicator.transform.eulerAngles = new Vector3(
+            0,
+            0,
+            _indicatorAngleZ
+        );
+
+        //abandoned code
+        /*_directionIndicator.transform.position = _spawnPosition;
+        _directionIndicator.transform.eulerAngles = new Vector3(
+            _directionIndicator.transform.eulerAngles.x,
+            90f + _projectionAngleX,
+            90f - _projectionAngleY
+        );*/
 
         //calculate the position of the fruit to show the trembling
         _fruitSpawned.transform.position = _spawnPosition + pullingAnimation + new Vector3(_projectionAngleX * 0.005f, _projectionAngleY * 0.005f, 0f);
@@ -273,6 +281,8 @@ public class PlayerController : MonoBehaviour
                         /*Debug.Log("PlayerController: Raycast hit fruit: " + _hitObject.name);*/
                         Debug.Log("PlayerController: Fruit Vacuum");
 
+
+
                         if(_hitObject.CompareTag("Watermelon")){
                             _watermelonEnjoyed.Play();
                             Destroy( _hitObject );
@@ -315,9 +325,17 @@ public class PlayerController : MonoBehaviour
                         _fruitSwallowed.transform.position = hit.transform.position - ray.direction;
                         _fruitSwallowed.SetActive(true);
                         _fruitSwallowed.GetComponent<Rigidbody>().AddForce(ray.direction * _blastForce);
+                        _fruitBlastSE.Play();
+                        _isFruitSwallowed = false;
                     }
-                    _fruitBlastSE.Play();
-                    _isFruitSwallowed = false;
+                    else
+                    {
+                        //else if fruit blasted at wrong direction
+                        GameManager.Instance.DropFruit();
+                        _isFruitSwallowed = false;
+
+                    }
+                    
                 }
 
 

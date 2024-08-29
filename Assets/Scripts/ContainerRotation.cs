@@ -13,7 +13,7 @@ public class ContainerRotation : MonoBehaviour
         {
             float rotationAroundY = Input.GetAxis("Horizontal");
 
-            Vector3 center = transform.GetChild(0).GetChild(0).position;
+            Vector3 center = transform.GetChild(0).position;
 
             
             //rotate the container and what inside around Y axis
