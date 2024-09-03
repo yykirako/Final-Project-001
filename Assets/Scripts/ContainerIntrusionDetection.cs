@@ -6,28 +6,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ContainerIntrusionDetection : MonoBehaviour
-{
-    /*private void OnTriggerEnter(Collider other)
+{    private void OnTriggerExit(Collider other)
     {
-        *//*layer 3 -> OutsideContainer*/
-        /*layer 6 -> InsideContainer*//*
-
-        
-        if(other.gameObject.layer == 3 && !other.gameObject.CompareTag("Container") )
+        if (other.gameObject.layer == 3 && other.gameObject.GetComponent<Fruit>())
         {
+            Debug.Log(other.gameObject.GetComponent<Fruit>());
             other.gameObject.layer = 6;
-            foreach (Transform child in other.gameObject.transform)
-            {
-                child.gameObject.layer = 6;
-            }
-        }
-        *//*Debug.Log(other.gameObject.layer);*//*
-    }*/
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.gameObject.layer == 3 && !other.gameObject.CompareTag("Container"))
-        {
-            other.gameObject.layer = 6;
+            other.gameObject.transform.SetParent(other.gameObject.transform.parent.GetChild(0), true);//move the frtui into the same hierachy as the container
             foreach (Transform child in other.gameObject.transform)
             {
                 child.gameObject.layer = 6;

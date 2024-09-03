@@ -210,7 +210,7 @@ public class PlayerController : MonoBehaviour
         //show the force direction with the indicating arrow
 
         float _indicatorAngleZ = ReverseTangentCalculator(_projectionAngleX, _projectionAngleY);
-        Debug.Log("indicator angle z: " + _indicatorAngleZ);
+        /*Debug.Log("indicator angle z: " + _indicatorAngleZ);*/
         _directionIndicator.transform.eulerAngles = new Vector3(
             0,
             0,

@@ -57,14 +57,14 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Brightness: 0.5
-    - _Detail: 0.25
-    - _MinBrightness: 0.3
+    - _Brightness: 0.1
+    - _Detail: 0.3
+    - _MinBrightness: 0.5
     - _Shininess: 0.01
-    - _Strength: 0.5
+    - _Strength: 0.3
     - _TextureDensity: 1
     - _TextureRotationSpeed: 0.01
-    - _TextureScalingSpeed: 0.02
+    - _TextureScalingSpeed: 0.05
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _SpecColor: {r: 1, g: 1, b: 1, a: 1}

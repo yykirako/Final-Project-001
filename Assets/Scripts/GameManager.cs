@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
      
             IsFruitMerging = true;
             /*Debug.Log("fruit merging");*/
-            _fruitMerged = Instantiate(FruitPrefabs[fruitIndex + 1], mergePosition, FruitPrefabs[fruitIndex + 1].transform.rotation, Container.transform);
+            _fruitMerged = Instantiate(FruitPrefabs[fruitIndex + 1], mergePosition, FruitPrefabs[fruitIndex + 1].transform.rotation, Container.transform.GetChild(0));
 
             if(DataManager.Instance != null)
             {
@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour
         Debug.Log("GameManager: game is restarted.");
         //reset everything
         DataManager.Instance.CurrentScore = 0;
-        foreach (Transform child in Container.transform)
+        foreach (Transform child in Container.transform.GetChild(0))
         {
             if (!child.gameObject.CompareTag("Container"))
             {
@@ -194,7 +194,7 @@ public class GameManager : MonoBehaviour
         IsGameOver = false;
         IsGamePaused = false;
         IsBatteryCharging = true;
-        IsBatteryCharged = false; //=is dash mode ready to launch
+        IsBatteryCharged = false; 
         IsDashMode = false;
 
 }
